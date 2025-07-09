@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import MapIcon from './MapIcon';
 import { MAP_CONFIG } from '../variables';
@@ -29,7 +29,7 @@ const OutletMap = ({ outlets: initialOutlets = [] }) => {
   };
 
   // Find outlets with intersecting 5km catchments
-  const findIntersectingOutlets = (outletList) => {
+  const findIntersectingOutlets = useCallback((outletList) => {
     const intersecting = new Set();
     const catchmentRadius = 5; // 5km radius
     
@@ -49,7 +49,7 @@ const OutletMap = ({ outlets: initialOutlets = [] }) => {
     }
     
     return intersecting;
-  };
+  }, []);
 
   useEffect(() => {
     if (initialOutlets.length > 0) {
@@ -72,7 +72,7 @@ const OutletMap = ({ outlets: initialOutlets = [] }) => {
       setOutlets([]);
       setIntersectingOutlets(new Set());
     }
-  }, [initialOutlets]);
+  }, [initialOutlets, findIntersectingOutlets]);
 
   const formatOperatingHours = (hours) => {
     return hours || '8am - 12pm';
