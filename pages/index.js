@@ -165,7 +165,7 @@ export default function Home() {
                   <span className="text-white font-bold text-sm">M</span>
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  McDonald's Outlet Locator
+                  McDonald&apos;s Outlet Locators
                 </h1>
               </div>
             </div>
@@ -179,7 +179,7 @@ export default function Home() {
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Find McDonald's Outlets Near You
+              Find McDonald&apos;s Outlets Near You
             </h2>
             <p className="text-gray-800 text-lg">
               Use the AI-powered search to ask questions about outlets, or explore locations on the interactive map below.
@@ -236,7 +236,8 @@ export default function Home() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Enter a location to scrape (e.g., 'Kuala Lumpur')"
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              placeholder="Enter a location to scrape (e.g., &quot;Kuala Lumpur&quot;)"
               className="flex-grow p-3 border text-black border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
             />
             <button
@@ -251,57 +252,57 @@ export default function Home() {
               disabled={isSearching || isRescraping}
               className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              {isRescraping ? 'Rescraping...' : 'Clear Outlet Info'}
+              {isRescraping ? 'Deleting...' : 'Delete All & Rescrape'}
             </button>
           </div>
-          {error && <p className="mt-4 text-red-600">Error: {error}</p>}
         </div>
 
-        {/* Map Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              Outlet Locations
+        {/* Status Messages */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+            <strong className="font-bold">An error occurred:</strong>
+            <span className="block sm:inline"> {error}</span>
+          </div>
+        )}
+
+        {isFetchingOutlets && (
+          <div className="text-center p-4 bg-gray-100 rounded-lg">
+            <p className="text-gray-800">Loading outlets, please wait...</p>
+          </div>
+        )}
+
+        {/* Map and Outlet List */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Outlet List */}
+          <div className="md:col-span-1 bg-white rounded-lg shadow-lg p-4 overflow-y-auto h-[70vh]">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4 sticky top-0 bg-white pb-3 border-b">
+              Available Outlets ({outlets.length})
             </h3>
-            <p className="text-gray-800">
-              Interactive map showing all McDonald's outlets in the database
-            </p>
+            {outlets.length > 0 ? (
+              <ul className="space-y-4">
+                {outlets.map((outlet, index) => (
+                  <li 
+                    key={index} 
+                    className="p-4 border rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                    onClick={() => setMapCenter({ lat: outlet.latitude, lng: outlet.longitude })}
+                  >
+                    <p className="font-bold text-lg text-gray-800">{outlet.name}</p>
+                    <p className="text-sm text-gray-600">{outlet.address}</p>
+                    <div className="mt-2 text-xs text-gray-500">
+                      <span>Lat: {outlet.latitude.toFixed(4)}</span> | <span>Lng: {outlet.longitude.toFixed(4)}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600 mt-4 text-center">No outlets found. Try scraping a new location.</p>
+            )}
           </div>
-          
-          <OutletMap outlets={outlets} />
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-700">
-              Map data © OpenStreetMap contributors. Click markers for outlet details.
-            </p>
-          </div>
-        </div>
 
-        {/* Instructions Section */}
-        <div className="mt-8 bg-blue-50 rounded-lg border border-blue-200 p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-3">
-            How to Use
-          </h3>
-          <ul className="space-y-2 text-blue-800">
-            <li className="flex items-center">
-              <svg className="h-5 w-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Click on any red marker to view outlet information
-            </li>
-            <li className="flex items-center">
-              <svg className="h-5 w-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Use mouse wheel or zoom controls to navigate the map
-            </li>
-            <li className="flex items-center">
-              <svg className="h-5 w-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Click "Open in Waze" links for turn-by-turn navigation
-            </li>
-          </ul>
+          {/* Map */}
+          <div className="md:col-span-2 rounded-lg shadow-lg overflow-hidden h-[70vh]">
+            <OutletMap outlets={outlets} center={mapCenter} />
+          </div>
         </div>
       </main>
 
@@ -309,7 +310,7 @@ export default function Home() {
       <footer className="bg-white border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-800">
-            <p>&copy; 2024 McDonald's Outlet Application. Built with Next.js.</p>
+            <p>&copy; 2024 McDonald&apos;s Outlet Application. Built with Next.js.</p>
           </div>
         </div>
       </footer>
