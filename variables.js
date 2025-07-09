@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = 'https://mcdonalds-outlet-scraper-fa-i5uhv.sevalla.app/';
 
 export const API_ENDPOINTS = {
   scrapeAndSave: '/save-outlets',
